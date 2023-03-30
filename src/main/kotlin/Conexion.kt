@@ -1,7 +1,5 @@
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.SQLException
-import java.sql.Statement
+import java.sql.*
+import java.util.ArrayList
 
 object Conexion {
 
@@ -124,8 +122,53 @@ object Conexion {
         return cod
     }
 
+    fun obtenerPersonas(dni:String):Persona? {
+        // Atributo que nos permite ejecutar una sentencia SQL
+        var registros: ResultSet? = null
+        var p: Persona? = null
+        try {
+            abrirConexion()
+            val sentencia = "SELECT * FROM " + Constantes.tablaPersonas + "WHERE dni = " +"'$dni';"
+            registros = sentenciaSQL!!.executeQuery(sentencia)
+            if (registros!!.next()) {
+                p = Persona(
+                        registros.getString("dni"),
+                        registros.getString("nombre"),
+                        registros.getString("clave"),
+                        registros.getInt("tfno")
+                    )
+            }
+        } catch (ex: SQLException) {
+        } finally {
+            cerrarConexion()
+        }
+        return p
+    }
 
 
+    fun obtenerPersonasArrayList(): ArrayList<Persona> {
+        val lp: ArrayList<Persona> = ArrayList()
+        var registros: ResultSet? = null
+        try {
+            abrirConexion()
+            val sentencia = "SELECT * FROM " + Constantes.tablaPersonas
+            registros = sentenciaSQL!!.executeQuery(sentencia)
+            while (registros!!.next()) {
+                lp.add(
+                    Persona(
+                        registros.getString("dni"),
+                        registros.getString("nombre"),
+                        registros.getString("clave"),
+                        registros.getInt("tfno")
+                    )
+                )
+            }
+        } catch (ex: SQLException) {
+        } finally {
+            cerrarConexion()
+        }
+        return lp
+    }
 
     // ----------------------------------------------------------
     fun borrarPersona(dni: String): Int {
